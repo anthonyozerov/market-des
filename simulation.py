@@ -29,6 +29,19 @@ agents = []
 def f_value(time,k):
     return np.zeros(m)+1+math.sin(time+k)
 
+def print_inventories():
+    print("Agent inventories:")
+    assets_total = np.zeros(m)
+    cash_total = 0
+    for agent in agents:
+        assets_total+=np.array(agent.inventory)
+        cash_total += agent.cash
+        fmt = "{0}: ${1}, assets {2}"
+        print(fmt.format(agent.name, agent.cash, agent.inventory))
+    print("Total cash:", cash_total)
+    print("Total assets:", assets_total)
+
+
 for i in range(0,n):
     cash = uniform(0,100)
     latency_i = uniform(0,100)
@@ -43,32 +56,31 @@ for i in range(0,n):
     heapq.heappush(events, initial_consider)
     agents.append(agent)
 
+
+print_inventories()
+
 for t in range(0,100):
     event = heapq.heappop(events)
     time = event.time
     times.append(time)
-    print("\n",t,time,": agent",event.agent.name,event.type)
-    for j in range(0, m):
-        print(assets[j])
-
+    print(t,time,": agent",event.agent.name,event.type)
+    #for j in range(0, m):
+        #print(assets[j])
+         
+    #in a consideration event, an agent starts considering and we either add a
+    #new consideration event to the queue (if they decided not to make an order)
+    #or an addorder event to the queue (if they decided to make an order)
     if event.type == "consider":
-       event_d = event.agent.consider(data = [assets,f_value(time,agent.name),m])
-       #if the agent wants to make an order, add it to the events
-       if event_d != False:
-           heapq.heappush(events, event_d)
-    if event.type == "placeorder":
-        agent = event.agent
-        event_po = Event(time = agent.latency_o+time,etype = "addorder", agent = agent)
-        event_po.order = event.order
-        heapq.heappush(events, event_po)
+        data = {"orders" : assets,"f" : f_value(time,agent.name), "m": m, "time": time}
+        event_d = event.agent.consider(data = data)
+        heapq.heappush(events, event_d)
+
+    #in an addorder event, we add an agent's order to an asset's order book, clear
+    #that asset's market, and add a new consideration event for the agent.
     if event.type == "addorder":
         asset = assets[event.order.assetno]
         asset.addOrder(event.order)
         asset.clearMarket()
+        heapq.heappush(events,event.agent.get_nextconsider(event.time))
 
-    for agent in agents:
-        if not agent.considering:
-            heapq.heappush(events,agent.get_nextconsider(time))
-#to remove:
-for asset in assets:
-    asset.clearMarket()
+print_inventories()

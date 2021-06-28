@@ -22,11 +22,11 @@ class Asset:
         minsell = heappop(self.sells)
 
         while(maxbuy.price >= minsell.price and self.hasorders()):
-            print("trade made!!!")
             volume = min(maxbuy.n, minsell.n)
             price = maxbuy.price
             buyer = maxbuy.agent
             seller = minsell.agent
+            print(buyer.name, "buys", volume, "of", self.name, "from", seller.name, "at", price)
             #add delays to the money addition? Not a good idea, I think
             buyer.inventory[self.assetno] += volume
             buyer.cash -= volume*price
@@ -44,10 +44,9 @@ class Asset:
         heappush(self.buys,maxbuy)
         heappush(self.sells,minsell)
 
-    def addOrder(self, agent, n, price, buy):
-        cashgain = price if not buy else -1*price
-        order = Order(agent, n, cashgain,self.name,buy)
-        if(buy):
+    def addOrder(self, order):#agent, n, price, buy):
+        cashgain = order.cashgain
+        if(order.buy):
             heappush(self.buys,order)
         else:
             heappush(self.sells,order)

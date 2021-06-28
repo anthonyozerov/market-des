@@ -1,6 +1,7 @@
 from random import expovariate, sample
 import numpy as np
 from event import Event
+from order import Order
 
 class Agent:
     def __init__(self, cash, latency_i, latency_o, rate_c, m, name):
@@ -20,17 +21,27 @@ class Agent:
 
     def consider(self, data):
         self.considering = False
-        m = data[2]
+        m = data["m"]
         assetno = sample(range(0,m),1)[0]
-        fundamentals = data[1][assetno]
-        orderbook = data[0][assetno]
+        fundamentals = data["f"][assetno]
+        orderbook = data["orders"][assetno]
         buy = sample([0,1],1)[0]
         n = 1
-        if(buy):
-            orderbook.addOrder(self, n, fundamentals*0.9, buy)
-        else:
-            orderbook.addOrder(self, n, fundamentals*0.9, buy)
+        
+        price = fundamentals*0.9
+        cashgain = price if not buy else -1*price
+        order = Order(self, n, cashgain, assetno, buy)
 
-        return False
+        time_c = 1 #time spent considering
+
+        event_o = Event(agent = self, time = data["time"] + time_c + self.latency_o, etype = "addorder")
+        event_o.order = order
+        make_order = True
+        if make_order:
+            return event_o
+        #orderbook.addOrder(self, n, fundamentals*0.9, buy)
+        else:
+            return self.get_nextconsider(data["time"])
+
 
 
