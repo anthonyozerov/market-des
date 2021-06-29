@@ -2,14 +2,14 @@ from heapq import heappop, heappush, heapify
 from order import Order
 
 class Asset:
-    def __init__(self,name):
+    def __init__(self, name, number):
         self.name = name
         #arrays of Orders (should be made into min and max queues)
         self.buys = []
         heapify(self.buys)
         self.sells = []
         heapify(self.sells)
-        self.assetno = self.name
+        self.assetno = number
 
     def hasorders(self):
         if len(self.buys)*len(self.sells)>0:
@@ -26,7 +26,7 @@ class Asset:
             price = maxbuy.price
             buyer = maxbuy.agent
             seller = minsell.agent
-            print(buyer.name, "buys", volume, "of", self.name, "from", seller.name, "at", price)
+            print(buyer.name, "buys", volume, self.name, "from", seller.name, "at", price)
             #add delays to the money addition? Not a good idea, I think
             buyer.inventory[self.assetno] += volume
             buyer.cash -= volume*price
