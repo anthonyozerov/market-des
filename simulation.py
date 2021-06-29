@@ -10,23 +10,29 @@ import argparse
 argp = argparse.ArgumentParser()
 argp.add_argument('-m', '--assets', default=4)
 argp.add_argument('-n', '--agents', default=4)
-argp.add_argument('-t', '--type', default = "figgie")
+argp.add_argument('-r', '--rules', default = "full")
+argp.add_argument('-s', '--steps', default = 1000)
+argp.add_argument('-v', '--verbose', dest = 'verbose', action = 'store_true')
+argp.set_defaults(verbose=False)
 
 args = argp.parse_args()
-
-figgie = args.type == "figgie"
-print(figgie)
+figgie = args.rules == "figgie"
 suits = ["spades", "clubs", "hearts", "diamonds"]
 goalsuit = -1
 bonus = -1
+distribution = []
 
-times = []
-
+verbose = args.verbose
 
 # market will clear by matching the biggest bids with the smallest asks
 
-n = 4 #number of agents
-m = 4 #number of assets
+if figgie:
+    n = 4
+    m = 4
+else:
+    n = int(args.agents)
+    m = int(args.assets)
+steps = int(args.steps)
 
 
 
@@ -65,6 +71,7 @@ def initialize(bonus, distribution, goalsuit):
 
     if figgie:
         names = suits
+        cards = distribution.copy()
     else:
         names = range(0,m)
     for i in range(0,m):
@@ -75,7 +82,6 @@ def initialize(bonus, distribution, goalsuit):
     events = []
     heapq.heapify(events)
 
-    cards = distribution.copy()
 
     for i in range(0,n):
         if figgie:
@@ -106,10 +112,11 @@ def initialize(bonus, distribution, goalsuit):
     return assets, agents, events
 
 def update():
+    times = []
     event = heapq.heappop(events)
     time = event.time
     times.append(time)
-    print(t,time,": agent",event.agent.name,event.type)
+    if verbose: print(t,time,": agent",event.agent.name,event.type)
     #for j in range(0, m):
         #print(assets[j])
          
@@ -151,7 +158,7 @@ if figgie:
 assets, agents, events = initialize(bonus, distribution, goalsuit)
 print("Inventories before trading:--------------")
 print_inventories()
-for t in range(0,100):
+for t in range(0,steps):
     update()
 print("Inventories after trading:---------------")
 print_inventories()
