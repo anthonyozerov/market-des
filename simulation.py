@@ -137,19 +137,11 @@ def update():
         heapq.heappush(events,event.agent.get_nextconsider(event.time))
 
 def payout():
-    maxagent = [agents[0]]
-    for agent in agents:
-        agent.cash += agent.inventory[goalsuit]*10
-        if(agent.inventory[goalsuit] == maxagent[0].inventory[goalsuit] and agent not in maxagent):
-            maxagent.append(agent)
-        elif(agent.inventory[goalsuit] > maxagent[0].inventory[goalsuit]):
-            maxagent = [agent]
-    bonus_split = bonus/len(maxagent)
-    for agent in maxagent:
+    max_cards = max([agent.inventory[goalsuit] for agent in agents])
+    max_agents = [agent for agent in agents if agent.inventory[goalsuit] == max_cards]
+    bonus_split = bonus/len(max_agents)
+    for agent in max_agents:
         agent.cash += bonus_split
-
-
-
 
 
 if figgie:
@@ -169,8 +161,5 @@ if figgie:
     print("bonus:", bonus)
     payout()
     print_inventories()
-    winner = agents[0]
-    for agent in agents:
-        if agent.cash>winner.cash:
-            winner = agent
+    winner = agents[np.argmax([agent.cash for agent in agents])]
     print("The winner is", winner.name)
