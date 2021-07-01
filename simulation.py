@@ -3,6 +3,7 @@ import heapq
 from asset import Asset
 from agent import Agent
 from event import Event
+from momentum import Momentum_Agent
 import numpy as np
 import math
 import argparse
@@ -22,6 +23,8 @@ goalsuit = -1
 bonus = -1
 distribution = []
 
+times = []
+
 verbose = args.verbose
 
 # market will clear by matching the biggest bids with the smallest asks
@@ -33,8 +36,6 @@ else:
     n = int(args.agents)
     m = int(args.assets)
 steps = int(args.steps)
-
-
 
 def f_value(time,k):
     return np.zeros(m)+1+math.sin(time+k)
@@ -50,6 +51,7 @@ def print_inventories():
     print("Total cash:", cash_total)
     print("Total assets:", assets_total)
 
+
 def initialize_figgie():
     distribution = [8,10,10,12]
     shuffle(distribution)
@@ -62,18 +64,19 @@ def initialize_figgie():
     bonus = 100 if distribution[goalsuit]==10 else 120
     return bonus, distribution, goalsuit
 
+
 def initialize(bonus, distribution, goalsuit):
 
     assets = [] #each Asset object has:
     # max priority queue for buys
     # min priority queue for sells
 
-
+    names = range(0,m)
     if figgie:
-        names = suits
-        cards = distribution.copy()
+        #names = suits
+        dist = distribution.copy()
     else:
-        names = range(0,m)
+        dist = np.zeros(m)+10
     for i in range(0,m):
         assets.append(Asset(name = names[i], number = i))
     
@@ -81,7 +84,6 @@ def initialize(bonus, distribution, goalsuit):
     #events is a min-priority queue, sorted by time
     events = []
     heapq.heapify(events)
-
 
     for i in range(0,n):
         if figgie:
@@ -91,28 +93,28 @@ def initialize(bonus, distribution, goalsuit):
         latency_i = uniform(0,100)
         latency_o = uniform(0, 100)
         rate_c = uniform(0,1)
-            
 
+        #if i == 2:
+        #    agent = Momentum_Agent(cash = cash, latency_i = latency_i,
+        #              latency_o = latency_o, rate_c = rate_c,
+        #              m = m, name = i)
+        #    params = {'horizon':50}
+        #    agent.init_params(params)
+        #else:
         agent = Agent(cash = cash, latency_i = latency_i,
-                      latency_o = latency_o, rate_c = rate_c,
-                      m = m, name = i)
-        if figgie:
-            for i in range(0,10):
-                assetno = np.random.choice(range(0,4), 1, p=np.array(cards)/sum(cards))[0]
-                cards[assetno]-=1
-                agent.inventory[assetno]+=1
-        else:
-            for i in range(0,m):
-                agent.inventory[i] = math.floor(uniform(0,20))
+                          latency_o = latency_o, rate_c = rate_c,
+                          m = m, name = i)
+        for i in range(0,10):
+            assetno = np.random.choice(range(0,m), 1, p=np.array(dist)/sum(dist))[0]
+            dist[assetno]-=1
+            agent.inventory[assetno]+=1
 
-        initial_consider = Event(time = expovariate(rate_c),etype = "consider", agent = agent)
-        heapq.heappush(events, initial_consider)
+        heapq.heappush(events, agent.get_nextconsider(0))
         agents.append(agent)
 
     return assets, agents, events
 
 def update():
-    times = []
     event = heapq.heappop(events)
     time = event.time
     times.append(time)
@@ -132,9 +134,9 @@ def update():
     #that asset's market, and add a new consideration event for the agent.
     if event.type == "addorder":
         asset = assets[event.order.assetno]
-        asset.addOrder(event.order)
-        asset.clearMarket()
+        asset.add_order(event.order, time)
         heapq.heappush(events,event.agent.get_nextconsider(event.time))
+
 
 def payout():
     max_cards = max([agent.inventory[goalsuit] for agent in agents])

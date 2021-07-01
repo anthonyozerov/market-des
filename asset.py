@@ -10,47 +10,66 @@ class Asset:
         self.sells = []
         heapify(self.sells)
         self.assetno = number
+        self.price_series = {}
 
     def hasorders(self):
         if len(self.buys)*len(self.sells)>0:
             return True
         return False
 
-    def clearMarket(self):
+    def match_orders(self, time):
         if len(self.buys)*len(self.sells)==0: return
         maxbuy = heappop(self.buys)
         minsell = heappop(self.sells)
+        self.price_series[time] = maxbuy.price
 
         while(maxbuy.price >= minsell.price and self.hasorders()):
-            volume = min(maxbuy.n, minsell.n)
+            available = minsell.agent.inventory[self.assetno]
+
+            # volume traded is upper bounded by the size of the buy
+            # order, the size of the sell order, and how much the seller
+            # has available
+            volume = min(maxbuy.n, minsell.n, available)
             price = maxbuy.price
             buyer = maxbuy.agent
             seller = minsell.agent
-            print(buyer.name, "buys", volume, self.name, "from", seller.name, "at", price)
-            #add delays to the money addition? Not a good idea, I think
-            buyer.inventory[self.assetno] += volume
-            buyer.cash -= volume*price
-            seller.inventory[self.assetno] -= volume
-            seller.cash += volume*price
-            if maxbuy.n > minsell.n:
-                maxbuy.n -= minsell.n
+            if volume>0:
+                print(buyer.name, "buys", volume, self.name, "from", seller.name, "at", price)
+                buyer.inventory[self.assetno] += volume
+                buyer.cash -= volume*price
+                seller.inventory[self.assetno] -= volume
+                seller.cash += volume*price
+            if maxbuy.n > min(minsell.n,available):
+                maxbuy.n -= volume
                 heappush(self.buys,maxbuy)
-            elif maxbuy.n < minsell.n:
-                minsell.n -= maxbuy.n
-                heappush(self.sells,minsell)
+            elif maxbuy.n < min(minsell.n,available):
+                minsell.n -= volume
+                if available > 0:
+                    heappush(self.sells,minsell)
             if len(self.buys)*len(self.sells)==0: break
             maxbuy = heappop(self.buys)
             minsell = heappop(self.sells)
         heappush(self.buys,maxbuy)
         heappush(self.sells,minsell)
 
-    def addOrder(self, order):#agent, n, price, buy):
-        cashgain = order.cashgain
+    def add_order(self, order, time):
         if(order.buy):
             heappush(self.buys,order)
         else:
             heappush(self.sells,order)
-        self.clearMarket()
+        self.match_orders(time)
+
+    def get_price_series(self,start):
+        if len(self.price_series) == 0:
+            return {}
+
+        series = {k: v for k, v in self.price_series.items() if k > start}
+        if len(series)>0:
+            return series
+
+        k = max(self.price_series.keys())
+        v = self.price_series[k]
+        return {k: v}
 
     def __str__(self):
         return str(self.name) + "\n" + str([str(buy) for buy in self.buys]) + "\n" + str([str(sell) for sell in self.sells])

@@ -4,6 +4,8 @@ from event import Event
 from order import Order
 
 class Agent:
+
+    #init method common to all agents
     def __init__(self, cash, latency_i, latency_o, rate_c, m, name):
         self.latency_i = latency_i #latency of market information getting to agent
         self.latency_o = latency_o #latency between agent sending order and it being added to order book
@@ -15,12 +17,14 @@ class Agent:
 
         self.name = name
 
+
+    def init_params(self,params):
+        pass
+
     def get_nextconsider(self,time):
-        self.considering = True
         return Event(agent = self, etype = "consider", time = time+expovariate(self.rate_c))
 
     def consider(self, data):
-        self.considering = False
         m = data["m"]
         assetno = sample(range(0,m),1)[0]
         fundamentals = data["f"][assetno]
@@ -39,9 +43,5 @@ class Agent:
         make_order = True
         if make_order:
             return event_o
-        #orderbook.addOrder(self, n, fundamentals*0.9, buy)
         else:
-            return self.get_nextconsider(data["time"])
-
-
-
+            return self.get_nextconsider(data["time"]+time_c)
