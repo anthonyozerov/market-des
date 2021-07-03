@@ -1,5 +1,6 @@
 from heapq import heappop, heappush, heapify
 from order import Order
+from trade import Trade
 
 class Asset:
     def __init__(self, name, number):
@@ -11,6 +12,7 @@ class Asset:
         heapify(self.sells)
         self.assetno = number
         self.price_series = {}
+        self.trades = []
 
     def hasorders(self):
         if len(self.buys)*len(self.sells)>0:
@@ -34,7 +36,9 @@ class Asset:
             buyer = maxbuy.agent
             seller = minsell.agent
             if volume>0:
-                print(buyer.name, "buys", volume, self.name, "from", seller.name, "at", price)
+                trade = Trade(buyer, seller, self.assetno, self.name, volume, price, time)
+                print(trade)
+                self.trades.append(trade)
                 buyer.inventory[self.assetno] += volume
                 buyer.cash -= volume*price
                 seller.inventory[self.assetno] -= volume
