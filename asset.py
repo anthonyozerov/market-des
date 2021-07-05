@@ -1,5 +1,6 @@
 from heapq import heappop, heappush, heapify
 from order import Order
+from trade import Trade
 import numpy as np
 
 class Asset:
@@ -13,6 +14,8 @@ class Asset:
         self.assetno = number
         self.price_series = []
         self.price_series = np.empty([0,2])
+        self.trades = []
+
     def hasorders(self):
         if len(self.buys)*len(self.sells)>0:
             return True
@@ -23,11 +26,7 @@ class Asset:
             return
         maxbuy = heappop(self.buys)
         minsell = heappop(self.sells)
-        #self.price_series.loc[len(self.price_series.index)] = [time,maxbuy.price]
-        #self.price_series.append([time,maxbuy.price])
         self.price_series = np.append(self.price_series,np.array([[time,maxbuy.price]]),axis=0)
-        #print(self.price_series)
-        #df = pd.DataFrame(data = np.array([self.times,self.price_series]).transpose())
 
         while(maxbuy.price >= minsell.price and self.hasorders()):
             available = minsell.agent.inventory[self.assetno]
@@ -42,11 +41,9 @@ class Asset:
             if volume>0:
                 # if a trader tries to sell something they don't have,
                 # punish the trader?
-                print(buyer.name, "buys", volume, self.name, "from", seller.name, "at", price)
-                buyer.inventory[self.assetno] += volume
-                buyer.cash -= volume*price
-                seller.inventory[self.assetno] -= volume
-                seller.cash += volume*price
+                trade = Trade(buyer, seller, self.assetno, self.name, volume, price, time)
+                print(trade)
+                self.trades.append(trade)
             if maxbuy.n > min(minsell.n,available):
                 maxbuy.n -= volume
                 heappush(self.buys,maxbuy)
