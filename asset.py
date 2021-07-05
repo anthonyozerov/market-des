@@ -26,7 +26,8 @@ class Asset:
             return
         maxbuy = heappop(self.buys)
         minsell = heappop(self.sells)
-        self.price_series = np.append(self.price_series,np.array([[time,maxbuy.price]]),axis=0)
+        if len(self.price_series) == 0 or self.price_series[-1,1] != maxbuy.price:
+            self.price_series = np.append(self.price_series,np.array([[time,maxbuy.price]]),axis=0)
 
         while(maxbuy.price >= minsell.price and self.hasorders()):
             available = minsell.agent.inventory[self.assetno]
