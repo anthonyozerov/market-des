@@ -16,6 +16,7 @@ class Agent:
         self.considering = False
 
         self.name = name
+        self.time_c = 0
 
 
     def init_params(self,params):
@@ -23,6 +24,11 @@ class Agent:
 
     def get_nextconsider(self,time):
         return Event(agent = self, etype = "consider", time = time+expovariate(self.rate_c))
+
+    def orderevent(self, time, order):
+        event_o = Event(agent = self, time = time + self.time_c + self.latency_o, etype = "addorder")
+        event_o.order = order
+        return event_o
 
     def consider(self, data):
         m = data["m"]
@@ -36,12 +42,10 @@ class Agent:
         cashgain = price if not buy else -1*price
         order = Order(self, n, cashgain, assetno, buy)
 
-        time_c = 1 #time spent considering
+        self.time_c = 1 #time spent considering
 
-        event_o = Event(agent = self, time = data["time"] + time_c + self.latency_o, etype = "addorder")
-        event_o.order = order
         make_order = True
         if make_order:
-            return event_o
+            return self.orderevent(time=data["time"], order=order)
         else:
-            return self.get_nextconsider(data["time"]+time_c)
+            return self.get_nextconsider(data["time"]+self.time_c)

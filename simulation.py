@@ -94,16 +94,16 @@ def initialize(bonus, distribution, goalsuit):
         latency_o = uniform(0, 100)
         rate_c = uniform(0,1)
 
-        #if i == 2:
-        #    agent = Momentum_Agent(cash = cash, latency_i = latency_i,
-        #              latency_o = latency_o, rate_c = rate_c,
-        #              m = m, name = i)
-        #    params = {'horizon':50}
-        #    agent.init_params(params)
-        #else:
-        agent = Agent(cash = cash, latency_i = latency_i,
-                          latency_o = latency_o, rate_c = rate_c,
-                          m = m, name = i)
+        if i == 2:
+            agent = Momentum_Agent(cash = cash, latency_i = latency_i,
+                      latency_o = latency_o, rate_c = rate_c,
+                      m = m, name = i)
+            params = {'horizon':50}
+            agent.init_params(params)
+        else:
+            agent = Agent(cash = cash, latency_i = latency_i,
+                              latency_o = latency_o, rate_c = rate_c,
+                              m = m, name = i)
         for i in range(0,10):
             assetno = np.random.choice(range(0,m), 1, p=np.array(dist)/sum(dist))[0]
             dist[assetno]-=1
@@ -144,6 +144,8 @@ def payout():
     bonus_split = bonus/len(max_agents)
     for agent in max_agents:
         agent.cash += bonus_split
+    for agent in agents:
+        agent.cash += agent.inventory[goalsuit] * 10
 
 
 if figgie:

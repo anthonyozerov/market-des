@@ -1,5 +1,6 @@
 from heapq import heappop, heappush, heapify
 from order import Order
+import numpy as np
 
 class Asset:
     def __init__(self, name, number):
@@ -10,18 +11,23 @@ class Asset:
         self.sells = []
         heapify(self.sells)
         self.assetno = number
-        self.price_series = {}
-
+        self.price_series = []
+        self.price_series = np.empty([0,2])
     def hasorders(self):
         if len(self.buys)*len(self.sells)>0:
             return True
         return False
 
     def match_orders(self, time):
-        if len(self.buys)*len(self.sells)==0: return
+        if not self.hasorders():
+            return
         maxbuy = heappop(self.buys)
         minsell = heappop(self.sells)
-        self.price_series[time] = maxbuy.price
+        #self.price_series.loc[len(self.price_series.index)] = [time,maxbuy.price]
+        #self.price_series.append([time,maxbuy.price])
+        self.price_series = np.append(self.price_series,np.array([[time,maxbuy.price]]),axis=0)
+        #print(self.price_series)
+        #df = pd.DataFrame(data = np.array([self.times,self.price_series]).transpose())
 
         while(maxbuy.price >= minsell.price and self.hasorders()):
             available = minsell.agent.inventory[self.assetno]
@@ -34,6 +40,8 @@ class Asset:
             buyer = maxbuy.agent
             seller = minsell.agent
             if volume>0:
+                # if a trader tries to sell something they don't have,
+                # punish the trader?
                 print(buyer.name, "buys", volume, self.name, "from", seller.name, "at", price)
                 buyer.inventory[self.assetno] += volume
                 buyer.cash -= volume*price
@@ -61,15 +69,13 @@ class Asset:
 
     def get_price_series(self,start):
         if len(self.price_series) == 0:
-            return {}
+            return self.price_series
 
-        series = {k: v for k, v in self.price_series.items() if k > start}
-        if len(series)>0:
-            return series
-
-        k = max(self.price_series.keys())
-        v = self.price_series[k]
-        return {k: v}
+        min_index = 0
+        while(min_index < len(self.price_series) and self.price_series[min_index,0]<start):
+            min_index += 1
+        min_index -= 1
+        return(self.price_series[min_index:len(self.price_series),:])
 
     def __str__(self):
         return str(self.name) + "\n" + str([str(buy) for buy in self.buys]) + "\n" + str([str(sell) for sell in self.sells])
