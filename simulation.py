@@ -4,9 +4,12 @@ from asset import Asset
 from agent import Agent
 from event import Event
 from momentum import Momentum_Agent
+from fundamentalist import Fundamentalist_Agent
 import numpy as np
 import math
 import argparse
+from probability import Probability
+
 
 argp = argparse.ArgumentParser()
 argp.add_argument('-m', '--assets', default=4)
@@ -100,6 +103,13 @@ def initialize(bonus, distribution, goalsuit):
                       m = m, name = i)
             params = {'horizon':50}
             agent.init_params(params)
+        
+        elif i == 3:
+            agent = Fundamentalist_Agent(cash = cash, latency_i = latency_i,
+                      latency_o = latency_o, rate_c = rate_c,
+                      m = m, name = i)
+            agent.init_params()
+        
         else:
             agent = Agent(cash = cash, latency_i = latency_i,
                               latency_o = latency_o, rate_c = rate_c,
