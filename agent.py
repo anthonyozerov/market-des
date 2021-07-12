@@ -2,12 +2,15 @@ from random import expovariate, sample
 import numpy as np
 from event import Event
 from order import Order
+from random import uniform
+import data
+from scipy.special import lambertw
+import math
 
 class Agent:
 
     #init method common to all agents
-    def __init__(self, cash, latency_i, latency_o, rate_c, m, name):
-        self.latency_i = latency_i #latency of market information getting to agent
+    def __init__(self, cash, latency_o, rate_c, m, name, number, risk):
         self.latency_o = latency_o #latency between agent sending order and it being added to order book
         self.rate_c = rate_c
         
@@ -16,36 +19,51 @@ class Agent:
         self.considering = False
 
         self.name = name
+        self.number = number
         self.time_c = 0
+        self.risk = risk
 
 
     def init_params(self,params):
         pass
 
-    def get_nextconsider(self,time):
-        return Event(agent = self, etype = "consider", time = time+expovariate(self.rate_c))
+    def get_nextconsider(self):
+        return Event(agent = self, etype = "consider", time = data.time+self.time_c+expovariate(self.rate_c))
 
-    def orderevent(self, time, order):
-        event_o = Event(agent = self, time = time + self.time_c + self.latency_o, etype = "addorder")
+    def orderevent(self, wait_time, order):
+        event_o = Event(agent = self, time = data.time + wait_time + self.time_c
+                + self.latency_o, etype = "addorder")
         event_o.order = order
         return event_o
 
-    def consider(self, data):
-        m = data["m"]
-        assetno = sample(range(0,m),1)[0]
-        fundamentals = data["f"][assetno]
-        orderbook = data["orders"][assetno]
-        buy = sample([0,1],1)[0]
+    def get_p_star(self, assetno, expected, horizon):
+        alpha = self.risk
+        variance = data.assets[assetno].get_return_variance(horizon)
+        stock_position = self.inventory[assetno]
+        if(stock_position == 0 or variance == 0):
+            return expected
+        #print(stock_position * self.alpha * variance * expected)
+        coef = stock_position * alpha * variance
+        p_star = np.real(lambertw(coef*expected)/coef)
+        #print(expected,stock_position,variance,p_star,math.isnan(p_star))
+        return p_star
+
+    def get_order(self, assetno, expected, horizon=float('inf')):
+        if self.risk>0:
+            expected = self.get_p_star(assetno, expected, horizon)
+        minprice = 0
+        maxprice = expected*2
         n = 1
-        
-        price = fundamentals*0.9
-        cashgain = price if not buy else -1*price
-        order = Order(self, n, cashgain, assetno, buy)
-
-        self.time_c = 1 #time spent considering
-
-        make_order = True
-        if make_order:
-            return self.orderevent(time=data["time"], order=order)
+        price = uniform(minprice,maxprice)
+        #print(expected,price)
+        if(price<expected):
+            buy = True
+            price = min(price,data.assets[assetno].get_price(buying=True))
         else:
-            return self.get_nextconsider(data["time"]+self.time_c)
+            buy = False
+            price = max(price,data.assets[assetno].get_price(buying=False))
+        self.time_c = 1
+        order = Order(self, n, price, assetno, buy)
+        return self.orderevent(0,order)
+
+

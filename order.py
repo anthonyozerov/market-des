@@ -1,13 +1,21 @@
+import data
+
 class Order:
-    def __init__(self, agent, n, cashgain, assetno, buy):
+    def __init__(self, agent, n, price, assetno, buy, expire = float('inf')):
         self.agent = agent
         self.n = n
-        self.cashgain = cashgain #negative if buy, positive if sell
+        self.cashgain = -1 * price if buy else price #negative if buy, positive if sell
         #(the negative/positive distinction isn't necessarily true, but
         #should hold fo the agents have good strategies)
-        self.price = cashgain if not buy else -1*cashgain
+        self.price = price
         self.assetno = assetno
         self.buy = buy
+        self.deleted = False
+        self.expiration_time = data.time + expire
+
+    def check_expire(self):
+        if data.time>self.expiration_time:
+            self.deleted = True
 
     def __lt__(self, other): return self.cashgain < other.cashgain
     def __eq__(self, other): return self.cashgain == other.cashgain
