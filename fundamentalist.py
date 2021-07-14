@@ -5,6 +5,7 @@ from probability import Probability
 import copy
 import data
 from random import sample
+import numpy as np
 
 class Fundamentalist_Agent(Agent):
 
@@ -12,8 +13,9 @@ class Fundamentalist_Agent(Agent):
         self.next_trades = [0, 0, 0, 0]
         self.belief_state =[ [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0] ]
         self.initial_hand = [0, 0, 0, 0]
-                
-        
+
+        self.expectations = np.empty([0,5])
+
     #this overwrites the consider function of the parent Agent class
     def consider(self):
         
@@ -44,9 +46,9 @@ class Fundamentalist_Agent(Agent):
         likelihoods = Probability.model_probabilities(total_state) 
         values = [Probability.expected_value(likelihoods, self.inventory, card_index) for card_index in range(0, 4)]
 
-        
+        self.expectations = np.append(self.expectations,
+                np.array([[data.time]+values]), axis=0)
 
-   
         #print(likelihoods)
         #print(values) 
 

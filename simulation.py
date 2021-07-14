@@ -9,9 +9,9 @@ import numpy as np
 import math
 import argparse
 from probability import Probability
+import pickle
 
 import data
-print(data.m)
 
 from agent import Agent
 
@@ -179,6 +179,20 @@ if figgie:
     print("The winner is", winner.name)
 
 
-for i in range(0, data.m):
-    np.savetxt('price_series'+str(i)+'.csv',data.assets[i].get_price_series(0),
-            delimiter=',')
+#for i in range(0, data.m):
+#    np.savetxt('price_series'+str(i)+'.csv',data.assets[i].get_price_series(0),
+#            delimiter=',')
+
+#for agent in data.agents:
+#    try:
+#        np.savetxt(agent.name+'_expectations.csv', agent.expectations,delimiter=",")
+#    except AttributeError:
+#        pass
+
+import os
+if not os.path.isdir('./output'):
+    os.makedirs('./output')
+filename = os.path.join('./output', 'datadump.'+str(args.index))
+to_pickle = {'times': data.times, 'agents': data.agents, 'assets': data.assets,
+        'm': data.m}
+pickle.dump(to_pickle,open(filename,'wb'))

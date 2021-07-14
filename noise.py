@@ -4,7 +4,9 @@ from event import Event
 import numpy as np
 from random import sample
 from numpy.random import normal
+from random import uniform
 import data
+import math
 
 class Noise_Agent(Agent):
 
@@ -20,12 +22,12 @@ class Noise_Agent(Agent):
         n = 1
         price_series = asset.get_price_series(data.time)
         if len(price_series)==0:
-            expected = 0
+            price = uniform(0,10)
         else:
-            expected = price_series[-1,1]
+            price = price_series[-1,1]
+        expected_return = normal(scale = self.var ** 0.5)
+        expected = price * math.exp(expected_return)
         #print("actual",expected)
-        expected += normal(scale = self.var**0.5)
-        expected = abs(expected)
         #print("+noise",expected)
 
         self.time_c = 1
