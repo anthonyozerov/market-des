@@ -4,6 +4,7 @@ from asset import Asset
 from event import Event
 from momentum import Momentum_Agent
 from fundamentalist import Fundamentalist_Agent
+from bottomfeeder import Bottomfeeder_Agent
 from noise import Noise_Agent
 import numpy as np
 import math
@@ -15,7 +16,8 @@ import data
 
 from agent import Agent
 
-classdict = {'momentum': Momentum_Agent, 'fundamentalist': Fundamentalist_Agent, 'noise':Noise_Agent}
+classdict = {'momentum': Momentum_Agent, 'fundamentalist': Fundamentalist_Agent, 'noise':Noise_Agent,
+        'bottomfeeder': Bottomfeeder_Agent}
 
 argp = argparse.ArgumentParser()
 argp.add_argument('-m', '--assets', default=4)
@@ -145,6 +147,7 @@ def update():
     if event.type == "addorder":
         asset = data.assets[event.order.assetno]
         asset.add_order(event.order)
+        event.agent.orders.append(event.order)
         heapq.heappush(events,event.agent.get_nextconsider())
 
 

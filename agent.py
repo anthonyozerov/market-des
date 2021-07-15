@@ -23,6 +23,8 @@ class Agent:
         self.time_c = 0
         self.risk = risk
 
+        self.orders = []
+
 
     def init_params(self,params):
         pass
