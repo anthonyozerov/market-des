@@ -30,6 +30,6 @@ class Noise_Agent(Agent):
         #print("actual",expected)
         #print("+noise",expected)
 
-        self.time_c = 1
+        self.time_c = 0
 
         return self.get_order(assetno, expected)

@@ -70,7 +70,7 @@ class Asset:
                 # if a trader tries to sell something they don't have,
                 # punish the trader?
                 trade = Trade(buyer, seller, self.assetno, self.name, volume, price, data.time)
-                print(trade)
+                if data.verbose: print(trade)
                 self.trades.append(trade)
             if maxbuy.n > min(minsell.n,available):
                 maxbuy.n -= volume

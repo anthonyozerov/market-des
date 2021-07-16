@@ -25,8 +25,9 @@ argp.add_argument('-n', '--agents', default=4)
 argp.add_argument('-r', '--rules', default = "full")
 argp.add_argument('-s', '--steps', default = 1000)
 argp.add_argument('-v', '--verbose', dest = 'verbose', action = 'store_true')
-argp.add_argument('-c', '--config', default = 'agents.ini')
+argp.add_argument('-c', '--config', default = 'agents')
 argp.add_argument('-i', '--index', default = 0)
+argp.add_argument('-o', '--output', default = 'datadump')
 argp.set_defaults(verbose=False)
 
 args = argp.parse_args()
@@ -37,7 +38,7 @@ bonus = -1
 distribution = []
 
 
-verbose = args.verbose
+data.verbose = args.verbose
 
 # market will clear by matching the biggest bids with the smallest asks
 
@@ -99,7 +100,7 @@ def initialize(bonus, distribution, goalsuit):
     from configparser import ConfigParser
     import ast
     config = ConfigParser()
-    config.read(args.config)
+    config.read('configs/'+args.config+'.ini')
     count = 0
     for section in config.sections():
         par = config[section]
@@ -131,7 +132,7 @@ def update():
     event = heapq.heappop(events)
     data.time = event.time
     data.times.append(data.time)
-    if verbose: print(t,data.time,": agent",event.agent.name,event.type)
+    if data.verbose: print(t,data.time,": agent",event.agent.name,event.type)
     #for j in range(0, m):
         #print(assets[j])
          
@@ -195,7 +196,7 @@ if figgie:
 import os
 if not os.path.isdir('./output'):
     os.makedirs('./output')
-filename = os.path.join('./output', 'datadump.'+str(args.index))
+filename = os.path.join('./output', args.output+'.'+str(args.index))
 to_pickle = {'times': data.times, 'agents': data.agents, 'assets': data.assets,
         'm': data.m}
 pickle.dump(to_pickle,open(filename,'wb'))

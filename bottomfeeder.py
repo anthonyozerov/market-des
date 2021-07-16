@@ -44,6 +44,4 @@ class Bottomfeeder_Agent(Agent):
         expected = expecteds[assetno]
         #print(expected)
 
-        self.time_c = 1
-
         return self.get_order(assetno, expected)

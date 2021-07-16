@@ -64,7 +64,7 @@ class Agent:
         else:
             buy = False
             price = max(price,data.assets[assetno].get_price(buying=False))
-        self.time_c = 1
+
         order = Order(self, n, price, assetno, buy)
         return self.orderevent(0,order)
 
