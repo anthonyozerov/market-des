@@ -6,7 +6,7 @@ import math
 import data
 from random import sample
 
-class Bottomfeeder_Agent(Agent):
+class Trader(Agent):
 
     def init_params(self,params):
         self.prey = params['prey']

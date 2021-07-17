@@ -7,7 +7,7 @@ import data
 from random import sample
 import numpy as np
 
-class Fundamentalist_Agent(Agent):
+class Trader(Agent):
 
     def init_params(self,params):
         self.next_trades = [0, 0, 0, 0]

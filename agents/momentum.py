@@ -5,7 +5,7 @@ import numpy as np
 import math
 import data
 
-class Momentum_Agent(Agent):
+class Trader(Agent):
 
     def init_params(self,params):
         self.horizon = params['horizon']

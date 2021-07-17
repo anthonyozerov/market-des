@@ -2,24 +2,14 @@ import sys
 sys.path.append('agents')
 from random import uniform, expovariate, shuffle
 import heapq
-from asset import Asset
-from event import Event
-from momentum import Momentum_Agent
-from fundamentalist import Fundamentalist_Agent
-from bottomfeeder import Bottomfeeder_Agent
-from noise import Noise_Agent
 import numpy as np
 import math
 import argparse
-from probability import Probability
 import pickle
 
 import data
-
-from agent import Agent
-
-classdict = {'momentum': Momentum_Agent, 'fundamentalist': Fundamentalist_Agent, 'noise':Noise_Agent,
-        'bottomfeeder': Bottomfeeder_Agent}
+from asset import Asset
+from event import Event
 
 argp = argparse.ArgumentParser()
 argp.add_argument('-m', '--assets', default=4)
@@ -41,9 +31,6 @@ distribution = []
 
 
 data.verbose = args.verbose
-
-# market will clear by matching the biggest bids with the smallest asks
-
 
 
 if figgie:
@@ -81,9 +68,7 @@ def initialize_figgie():
 
 def initialize(bonus, distribution, goalsuit):
 
-    assets = [] #each Asset object has:
-    # max priority queue for buys
-    # min priority queue for sells
+    assets = []
 
     names = range(0,data.m)
     if figgie:
@@ -100,20 +85,25 @@ def initialize(bonus, distribution, goalsuit):
     heapq.heapify(events)
 
     from configparser import ConfigParser
-    import ast
     config = ConfigParser()
     config.read('configs/'+args.config+'.ini')
     count = 0
+    import ast
+    import importlib
     for section in config.sections():
         par = config[section]
+        
+        source = importlib.import_module(par['source'])
+        agent_class = source.Trader
+
         number = int(par["n"]) if "n" in par else 1
         cash = float(par["cash"]) if "cash" in par else 100
         params = ast.literal_eval(par["params"]) if "params" in par else {}
         latency_o = float(par["latency_o"]) if "latency_o" in par else 0
         rate_c = float(par["rate_c"]) if "rate_c" in par else uniform(0,1)
-        base_name = par["name"] if "name" in par else str(section)
-        agent_class = classdict[par["type"]] 
+        base_name = str(section)
         risk = float(par["risk"]) if "risk" in par else 0
+
         for j in range(0, number):
             name = base_name+"."+str(j)
             agent = agent_class(cash=cash, latency_o = latency_o, rate_c = rate_c,
@@ -135,9 +125,7 @@ def update():
     data.time = event.time
     data.times.append(data.time)
     if data.verbose: print(t,data.time,": agent",event.agent.name,event.type)
-    #for j in range(0, m):
-        #print(assets[j])
-         
+
     #in a consideration event, an agent starts considering and we either add a
     #new consideration event to the queue (if they decided not to make an order)
     #or an addorder event to the queue (if they decided to make an order)
@@ -166,12 +154,13 @@ def payout():
 
 if figgie:
     bonus, distribution, goalsuit = initialize_figgie()
-
 data.assets, data.agents, events = initialize(bonus, distribution, goalsuit)
 print("Inventories before trading:--------------")
 print_inventories()
+
 for t in range(0,steps):
     update()
+
 print("Inventories after trading:---------------")
 print_inventories()
 
@@ -185,16 +174,7 @@ if figgie:
     print("The winner is", winner.name)
 
 
-#for i in range(0, data.m):
-#    np.savetxt('price_series'+str(i)+'.csv',data.assets[i].get_price_series(0),
-#            delimiter=',')
-
-#for agent in data.agents:
-#    try:
-#        np.savetxt(agent.name+'_expectations.csv', agent.expectations,delimiter=",")
-#    except AttributeError:
-#        pass
-
+#data output
 import os
 if not os.path.isdir('./output'):
     os.makedirs('./output')
