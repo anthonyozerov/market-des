@@ -1,3 +1,5 @@
+import sys
+sys.path.append('..')
 from agent import Agent
 import numpy as np
 import math

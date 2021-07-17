@@ -1,6 +1,6 @@
+import sys
+sys.path.append('..')
 from agent import Agent
-from order import Order
-from event import Event
 import numpy as np
 import math
 import data

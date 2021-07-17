@@ -1,6 +1,6 @@
+import sys
+sys.path.append('..')
 from agent import Agent
-from order import Order
-from event import Event
 from probability import Probability
 import copy
 import data
@@ -58,6 +58,7 @@ class Fundamentalist_Agent(Agent):
 
         #to implement: making an order based on the price series seen
         #(for example, see parent Agent class)
+
 
         make_order = False
         if make_order:

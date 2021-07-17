@@ -1,3 +1,5 @@
+import sys
+sys.path.append('..')
 from random import expovariate, sample
 import numpy as np
 from event import Event

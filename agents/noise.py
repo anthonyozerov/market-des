@@ -1,6 +1,6 @@
+import sys
+sys.path.append('..')
 from agent import Agent
-from order import Order
-from event import Event
 import numpy as np
 from random import sample
 from numpy.random import normal

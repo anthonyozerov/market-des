@@ -1,3 +1,5 @@
+import sys
+sys.path.append('agents')
 from random import uniform, expovariate, shuffle
 import heapq
 from asset import Asset
