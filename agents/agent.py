@@ -63,7 +63,7 @@ class Agent:
         price = uniform(minprice,maxprice)
         buy = price<expected if price>0 else sample([False,True],1)[0]
         #print(expected,price)
-        if(price<expected):
+        if(buy):
             price = min(price,data.assets[assetno].get_price(buying=True))
         else:
             price = max(price,data.assets[assetno].get_price(buying=False))
