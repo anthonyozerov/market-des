@@ -123,6 +123,7 @@ class Asset:
             previous_price = current_price
             current_price = price_series[i,1]
             spot_return = math.log(current_price/previous_price)
+            #take log at end instead?
             #print('spot return:', spot_return)
             time_spent = price_series[i,0]-t
 

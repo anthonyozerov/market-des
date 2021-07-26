@@ -10,6 +10,9 @@ class Trader(Agent):
 
     def init_params(self,params):
         self.prey = params['prey']
+        self.color = 'darksalmon'
+
+        self.expectations = np.empty([0,5])
 
     def consider(self):
         m = data.m
@@ -39,7 +42,9 @@ class Trader(Agent):
                     upper[i] = price
             diffs = upper-lower
             expecteds += (upper+lower)/2 / len(self.prey)
-
+        if max(expecteds) < float('inf'):
+            toappend = np.append(np.array([data.time]),expecteds)
+            self.expectations = np.append(self.expectations, [toappend], axis=0)
 
 
         assetno = sample(range(0,m),1)[0]

@@ -147,9 +147,9 @@ def payout():
     max_agents = [agent for agent in data.agents if agent.inventory[goalsuit] == max_cards]
     bonus_split = bonus/len(max_agents)
     for agent in max_agents:
-        agent.cash += bonus_split
+        agent.payout += bonus_split
     for agent in data.agents:
-        agent.cash += agent.inventory[goalsuit] * 10
+        agent.payout += agent.inventory[goalsuit] * 10
 
 
 if figgie:
@@ -170,7 +170,7 @@ if figgie:
     print("bonus:", bonus)
     payout()
     print_inventories()
-    winner = data.agents[np.argmax([agent.cash for agent in data.agents])]
+    winner = data.agents[np.argmax([agent.cash+agent.payout for agent in data.agents])]
     print("The winner is", winner.name)
 
 
@@ -181,4 +181,6 @@ if not os.path.isdir('./output'):
 filename = os.path.join('./output', args.output+'.'+str(args.index))
 to_pickle = {'times': data.times, 'agents': data.agents, 'assets': data.assets,
         'm': data.m}
+if figgie:
+    to_pickle['goalsuit'] = goalsuit
 pickle.dump(to_pickle,open(filename,'wb'))

@@ -15,6 +15,7 @@ class Trader(Agent):
         self.initial_hand = [0, 0, 0, 0]
 
         self.expectations = np.empty([0,5])
+        self.color = 'skyblue'
 
     #this overwrites the consider function of the parent Agent class
     def consider(self):
@@ -58,11 +59,3 @@ class Trader(Agent):
 
         #to implement: making an order based on the price series seen
         #(for example, see parent Agent class)
-
-
-        make_order = False
-        if make_order:
-            return event_o #the order event
-        else:
-            return self.get_nextconsider()
-        

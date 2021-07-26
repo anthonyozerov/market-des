@@ -13,6 +13,7 @@ class Trader(Agent):
     def init_params(self,params):
         self.horizon = params['horizon']
         self.var = params['var']
+        self.color = 'palegreen'
 
     #this overwrites the consider function of the parent Agent class
     def consider(self):

@@ -27,6 +27,8 @@ class Agent:
 
         self.orders = []
 
+        self.payout = 0
+
 
     def init_params(self,params):
         pass
@@ -59,6 +61,7 @@ class Agent:
         maxprice = expected*2
         n = 1
         price = uniform(minprice,maxprice)
+        buy = price<expected if price>0 else sample([False,True],1)[0]
         #print(expected,price)
         if(price<expected):
             buy = True
