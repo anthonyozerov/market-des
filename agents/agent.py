@@ -64,10 +64,8 @@ class Agent:
         buy = price<expected if price>0 else sample([False,True],1)[0]
         #print(expected,price)
         if(price<expected):
-            buy = True
             price = min(price,data.assets[assetno].get_price(buying=True))
         else:
-            buy = False
             price = max(price,data.assets[assetno].get_price(buying=False))
 
         order = Order(self, n, price, assetno, buy)
