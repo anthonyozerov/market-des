@@ -26,12 +26,16 @@ class Agent:
         self.risk = risk
 
         self.orders = []
+        self.cashes = np.array([[0, self.cash]])
 
         self.payout = 0
 
-
     def init_params(self,params):
         pass
+
+    def add_cash(self, cash):
+        self.cash += cash
+        self.cashes = np.append(self.cashes, np.array([[data.time,self.cash]]), axis=0)
 
     def get_nextconsider(self):
         return Event(agent = self, etype = "consider", time = data.time+self.time_c+expovariate(self.rate_c))

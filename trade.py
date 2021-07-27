@@ -10,9 +10,9 @@ class Trade:
 
         #fulfill the trade
         buyer.inventory[assetno] += volume
-        buyer.cash -= volume*price
+        buyer.add_cash(-1 * volume * price)
         seller.inventory[assetno] -= volume
-        seller.cash += volume*price
+        seller.add_cash(volume*price)
 
     def __str__(self):
         return str(self.buyer.name) + " bought " + str(self.volume) + " of " + str(self.assetname) + " at " + str(self.price) + " from " + str(self.seller.name)
