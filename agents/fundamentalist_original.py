@@ -14,11 +14,8 @@ class Trader(Agent):
         self.belief_state =[ [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0] ]
         self.initial_hand = [0, 0, 0, 0]
 
-        self.sell_expectations = np.empty([0,5])
-        self.buy_expectations = np.empty([0,5])
+        self.expectations = np.empty([0,5])
         self.color = 'skyblue'
-
-        self.r = params['r']
 
     #this overwrites the consider function of the parent Agent class
     def consider(self):
@@ -48,27 +45,14 @@ class Trader(Agent):
        
         ### for now, I implemented the likelihoods using total_state, but we can just use the self.intial_hand as Alejandra mentioned by changing it below 
         likelihoods = Probability.model_probabilities(total_state) 
-        values = [Probability.expected_value_v2(likelihoods, self.inventory, card_index, self.r) for card_index in range(0, 4)]
+        values = [Probability.expected_value(likelihoods, self.inventory, card_index) for card_index in range(0, 4)]
 
-        buy_values = [values[i][0] for i in range(4)]
-        sell_values = [values[i][1] for i in range(4)]
-
-        self.buy_expectations = np.append(self.buy_expectations,
-                np.array([[data.time]+buy_values], dtype = object), axis = 0)
-    
-        self.sell_expectations = np.append(self.sell_expectations,
-                np.array([[data.time]+sell_values], dtype = object), axis = 0)
-        for order in self.orders:
-            if order.buy == True:
-                if order.price > values[order.assetno][0]:
-                    order.deleted = True
-            else:
-                if order.price < values[order.assetno][1]:
-                    order.deleted = True        
+        self.expectations = np.append(self.expectations,
+                np.array([[data.time]+values]), axis=0)
 
         #print(likelihoods)
         #print(values) 
-        
+
         i = sample
         assetno = sample(range(0,data.m),1)[0]
         return self.get_order(assetno, values[assetno])
