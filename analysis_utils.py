@@ -106,6 +106,7 @@ def plot_cashes(filename):
     plt.xlabel('time')
     plt.title('Agents\' cash over time')
     plt.legend(labels=names)
+    plt.show()
 
 import matplotlib.lines as mlines
 def plot_orders(filename, assetno, agentno):
