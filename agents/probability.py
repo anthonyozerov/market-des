@@ -23,6 +23,8 @@ class Probability:
             likelihoods = [ combos[i] / sum(combos) for i in range(len(combos)) ]
             return likelihoods
 
+
+    @staticmethod
     def expected_value(likelihoods, hand, card_index):
         
         common_suit = 0
@@ -50,5 +52,41 @@ class Probability:
                     val += likelihoods[i] * 10
                 else:
                     val += likelihoods[i] * (10 + 100/(6 - hand[card_index]) )
+
+        return val 
+
+
+    @staticmethod 
+    def expected_value_v2(likelihoods, hand, card_index, r):
+        
+        common_suit = 0
+
+        if card_index % 2 == 0:
+            common_suit = card_index + 1
+        else:
+            common_suit = card_index - 1
+
+        val = [0,0]        
+        start_index = common_suit * 3
+        eight_index = start_index if common_suit < 2 else start_index+2
+            
+        x0_eight = (120 * (1-r)) / (1 - (r ** 5)) 
+        x0_ten = (100 * (1-r)) / (1 - (r ** 6)) 
+
+        for a in range(2):
+            
+            for i in range(start_index, start_index + 3):
+            
+                if i == eight_index:
+                    if hand[card_index] - a > 4:
+                        val[a] += likelihoods[i] * 10
+                    else:
+                        val[a] += likelihoods[i] * (10 + x0_eight*(r** (hand[card_index] - a)) )
+
+                else: 
+                    if hand[card_index] - a > 5:
+                        val[a] += likelihoods[i] * 10
+                    else:
+                        val[a] += likelihoods[i] * (10 + x0_ten*(r** (hand[card_index] - a)) )
 
         return val 
