@@ -100,11 +100,12 @@ def initialize(bonus, distribution, goalsuit):
         cash = float(par["cash"]) if "cash" in par else 100
         params = ast.literal_eval(par["params"]) if "params" in par else {}
         latency = float(par["latency"]) if "latency" in par else 0
-        rate_c = float(par["rate_c"]) if "rate_c" in par else uniform(0,1)
         base_name = str(section)
         risk = float(par["risk"]) if "risk" in par else 0
-
         for j in range(0, number):
+
+            rate_c = float(par["rate_c"]) if "rate_c" in par else uniform(0,1)
+
             if number>1:
                 name = base_name+"."+str(j)
             else:

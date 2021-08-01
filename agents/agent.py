@@ -39,8 +39,14 @@ class Agent:
         self.cashes = np.append(self.cashes, np.array([[data.time,self.cash]]), axis=0)
     
     def save_expectations(self, expecteds):
-        toappend = np.append(np.array([data.time+self.latency]),expecteds)
-        self.expectations = np.append(self.expectations, [toappend], axis=0)
+        if hasattr(self, 'buy_expectations'):
+            toappend = np.append(np.array([data.time+self.latency]),expecteds[0])
+            self.buy_expectations = np.append(self.buy_expectations, [toappend], axis=0)
+            toappend = np.append(np.array([data.time+self.latency]),expecteds[1])
+            self.sell_expectations = np.append(self.sell_expectations, [toappend], axis=0)
+        else:
+            toappend = np.append(np.array([data.time+self.latency]),expecteds)
+            self.expectations = np.append(self.expectations, [toappend], axis=0)
 
     def get_nextconsider(self):
         return Event(agent = self, etype = "consider", time = data.time+self.time_c+expovariate(self.rate_c))
@@ -80,7 +86,7 @@ class Agent:
             else:
                 price = max(price,data.assets[assetno].get_price(buying=False))
 
-            order = Order(self, n, price, assetno, buy)
+            order = Order(self, n, price, assetno, buy, expire=horizon)
             return self.orderevent(0,order)
 
         else:
@@ -93,7 +99,7 @@ class Agent:
             else:
                 buy = False
                 price = uniform(expected[1], expected[1] * 2) 
-                price = min(price, data. assets[assetno].get_price(buying = False))
+                price = max(price, data.assets[assetno].get_price(buying = False))
             n = 1
-            order = Order(self, n, price, assetno, buy)
+            order = Order(self, n, price, assetno, buy, expire=horizon)
             return self.orderevent(0,order)

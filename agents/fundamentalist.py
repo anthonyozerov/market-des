@@ -14,8 +14,8 @@ class Trader(Agent):
         self.belief_state =[ [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0] ]
         self.initial_hand = [0, 0, 0, 0]
 
-        self.sell_expectations = np.empty([0,5])
-        self.buy_expectations = np.empty([0,5])
+        self.sell_expectations = np.empty([0,data.m+1])
+        self.buy_expectations = np.empty([0,data.m+1])
         self.color = 'skyblue'
 
         self.r = params['r']
@@ -53,11 +53,8 @@ class Trader(Agent):
         buy_values = [values[i][0] for i in range(4)]
         sell_values = [values[i][1] for i in range(4)]
 
-        self.buy_expectations = np.append(self.buy_expectations,
-                np.array([[data.time]+buy_values], dtype = object), axis = 0)
-    
-        self.sell_expectations = np.append(self.sell_expectations,
-                np.array([[data.time]+sell_values], dtype = object), axis = 0)
+        self.save_expectations([buy_values,sell_values])
+
         for order in self.orders:
             if order.buy == True:
                 if order.price > values[order.assetno][0]:
