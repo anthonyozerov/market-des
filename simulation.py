@@ -99,14 +99,17 @@ def initialize(bonus, distribution, goalsuit):
         number = int(par["n"]) if "n" in par else 1
         cash = float(par["cash"]) if "cash" in par else 100
         params = ast.literal_eval(par["params"]) if "params" in par else {}
-        latency_o = float(par["latency_o"]) if "latency_o" in par else 0
+        latency = float(par["latency"]) if "latency" in par else 0
         rate_c = float(par["rate_c"]) if "rate_c" in par else uniform(0,1)
         base_name = str(section)
         risk = float(par["risk"]) if "risk" in par else 0
 
         for j in range(0, number):
-            name = base_name+"."+str(j)
-            agent = agent_class(cash=cash, latency_o = latency_o, rate_c = rate_c,
+            if number>1:
+                name = base_name+"."+str(j)
+            else:
+                name = base_name
+            agent = agent_class(cash=cash, latency = latency, rate_c = rate_c,
                       m=data.m, name=name, number=count, risk=risk)
             agent.init_params(params)
             count+=1

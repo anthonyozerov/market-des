@@ -14,7 +14,6 @@ class Trader(Agent):
         self.belief_state =[ [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0] ]
         self.initial_hand = [0, 0, 0, 0]
 
-        self.expectations = np.empty([0,5])
         self.color = 'skyblue'
 
     #this overwrites the consider function of the parent Agent class
@@ -47,8 +46,7 @@ class Trader(Agent):
         likelihoods = Probability.model_probabilities(total_state) 
         values = [Probability.expected_value(likelihoods, self.inventory, card_index) for card_index in range(0, 4)]
 
-        self.expectations = np.append(self.expectations,
-                np.array([[data.time]+values]), axis=0)
+        self.save_expectations(values)
 
         #print(likelihoods)
         #print(values) 

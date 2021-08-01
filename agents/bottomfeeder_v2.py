@@ -14,8 +14,6 @@ class Trader(Agent):
 
         self.color = 'darksalmon'
 
-        self.expectations = np.empty([0,5])
-
     def consider(self):
         m = data.m
         assets = data.assets
@@ -58,9 +56,7 @@ class Trader(Agent):
         expecteds = [np.mean(est) if len(est)>0 else 0 for est in estimates]
 
         if max(expecteds) < float('inf'):
-            toappend = np.append(np.array([data.time]),expecteds)
-            self.expectations = np.append(self.expectations, [toappend], axis=0)
-
+            self.save_expectations(expecteds)
 
         assetno = sample(range(0,m),1)[0]
         expected = expecteds[assetno]

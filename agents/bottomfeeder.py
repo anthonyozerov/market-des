@@ -12,8 +12,6 @@ class Trader(Agent):
         self.prey = params['prey']
         self.color = 'darksalmon'
 
-        self.expectations = np.empty([0,5])
-
     def consider(self):
         m = data.m
         assets = data.assets
@@ -43,9 +41,7 @@ class Trader(Agent):
             diffs = upper-lower
             expecteds += (upper+lower)/2 / len(self.prey)
         if max(expecteds) < float('inf'):
-            toappend = np.append(np.array([data.time]),expecteds)
-            self.expectations = np.append(self.expectations, [toappend], axis=0)
-
+            self.save_expectations(expecteds)
 
         assetno = sample(range(0,m),1)[0]
         expected = expecteds[assetno]

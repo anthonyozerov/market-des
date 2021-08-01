@@ -12,8 +12,8 @@ import math
 class Agent:
 
     #init method common to all agents
-    def __init__(self, cash, latency_o, rate_c, m, name, number, risk):
-        self.latency_o = latency_o #latency between agent sending order and it being added to order book
+    def __init__(self, cash, latency, rate_c, m, name, number, risk):
+        self.latency = latency #communication latency between agent and market
         self.rate_c = rate_c
         
         self.cash = cash
@@ -27,6 +27,7 @@ class Agent:
 
         self.orders = []
         self.cashes = np.array([[0, self.cash]])
+        self.expectations = np.empty([0,data.m+1])
 
         self.payout = 0
 
@@ -36,13 +37,17 @@ class Agent:
     def add_cash(self, cash):
         self.cash += cash
         self.cashes = np.append(self.cashes, np.array([[data.time,self.cash]]), axis=0)
+    
+    def save_expectations(self, expecteds):
+        toappend = np.append(np.array([data.time+self.latency]),expecteds)
+        self.expectations = np.append(self.expectations, [toappend], axis=0)
 
     def get_nextconsider(self):
         return Event(agent = self, etype = "consider", time = data.time+self.time_c+expovariate(self.rate_c))
 
     def orderevent(self, wait_time, order):
         event_o = Event(agent = self, time = data.time + wait_time + self.time_c
-                + self.latency_o, etype = "addorder")
+                + self.latency*2, etype = "addorder")
         event_o.order = order
         return event_o
 

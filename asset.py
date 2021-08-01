@@ -18,7 +18,6 @@ def pop_lazy(heap):
 class Asset:
     def __init__(self, name, number):
         self.name = name
-        #arrays of Orders (should be made into min and max queues)
         self.buys = []
         heapify(self.buys)
         self.sells = []
@@ -52,9 +51,10 @@ class Asset:
         minsell = pop_lazy(self.sells)
         if maxbuy.deleted or minsell.deleted:
             return
-        if len(self.price_series) == 0 or self.price_series[-1,1] != maxbuy.price:
+        current_price = maxbuy.price#(maxbuy.price + minsell.price)/2
+        if len(self.price_series) == 0 or self.price_series[-1,1] != current_price:
             self.price_series = np.append(self.price_series,
-                                  np.array([[data.time,maxbuy.price]]),axis=0)
+                                  np.array([[data.time,current_price]]),axis=0)
 
         while(maxbuy.price >= minsell.price and self.hasorders()):
             available = minsell.agent.inventory[self.assetno]
