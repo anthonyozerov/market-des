@@ -70,36 +70,21 @@ class Agent:
         return p_star
 
     def get_order(self, assetno, expected, horizon=float('inf')):
-        
-        if type(expected) != type([0]):
-        
-            if self.risk>0:
-                expected = self.get_p_star(assetno, expected, horizon)
-            minprice = 0
-            maxprice = expected*2
-            n = 1
-            price = uniform(minprice,maxprice)
-            buy = price<expected if price>0 else sample([False,True],1)[0]
-            #print(expected,price)
-            if(buy):
-                price = min(price,data.assets[assetno].get_price(buying=True))
-            else:
-                price = max(price,data.assets[assetno].get_price(buying=False))
 
-            order = Order(self, n, price, assetno, buy, expire=horizon)
-            return self.orderevent(0,order)
+        islist = type(expected) == type([0])
+
+        buythresh = expected[0] if islist else expected
+        sellthresh = expected[1] if islist else expected
+
+        if uniform(0,1) < .5 or self.inventory[assetno] ==  0:
+            buy = True
+            price = uniform(0, buythresh)
+            price = min(price, data. assets[assetno].get_price(buying = True))
 
         else:
-            
-            if uniform(0,1) < .5 or self.inventory[assetno] ==  0:
-                buy = True 
-                price = uniform(0, expected[0])
-                price = min(price, data. assets[assetno].get_price(buying = True))
-            
-            else:
-                buy = False
-                price = uniform(expected[1], expected[1] * 2) 
-                price = max(price, data.assets[assetno].get_price(buying = False))
-            n = 1
-            order = Order(self, n, price, assetno, buy, expire=horizon)
-            return self.orderevent(0,order)
+            buy = False
+            price = uniform(sellthresh, sellthresh * 2)
+            price = max(price, data.assets[assetno].get_price(buying = False))
+        n = 1
+        order = Order(self, n, price, assetno, buy, expire=horizon)
+        return self.orderevent(0,order)
