@@ -17,8 +17,8 @@ class Trader(Agent):
         self.sell_expectations = np.empty([0,data.m+1])
         self.buy_expectations = np.empty([0,data.m+1])
         self.color = 'skyblue'
-
-        self.r = params['r']
+    
+        self.r = params['r'] if 'r' in params else 1.5
 
     #this overwrites the consider function of the parent Agent class
     def consider(self):

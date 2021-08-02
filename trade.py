@@ -14,5 +14,10 @@ class Trade:
         seller.inventory[assetno] -= volume
         seller.add_cash(volume*price)
 
+    #trades are ordered by time
+    def __lt__(self, other): return self.time < other.time
+    def __eq__(self, other): return self.time == other.time
+    def __gt__(self, other): return self.time > other.time
+
     def __str__(self):
         return str(self.buyer.name) + " bought " + str(self.volume) + " of " + str(self.assetname) + " at " + str(self.price) + " from " + str(self.seller.name)
