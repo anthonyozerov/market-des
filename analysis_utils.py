@@ -19,6 +19,7 @@ def load_data(filename):
 def plot_expectations(filename):
     data = CustomUnpickler(open(os.path.join('./output', filename),'rb')).load()
     for i in range(0,4):
+        fig, ax = plt.subplots()
         names = []
         for j in range(0,4):
             agent = data['agents'][j]
@@ -42,6 +43,7 @@ def plot_expectations(filename):
             titlestring += " (GOAL SUIT)"
         plt.title(titlestring)
         plt.show()
+        fig.savefig('graphs/'+filename+'.'+str(i)+"_expectations.svg", facecolor='white', transparent=False)
 
 def plot_rewards(input_base, iterations, output):
     endcash = np.zeros([iterations,4])
@@ -75,10 +77,11 @@ def plot_rewards(input_base, iterations, output):
     plt.axhline(y=350, color='grey', linestyle='--')
     plt.axhline(y=400, color='black', linestyle='--')
     plt.show()
-    fig.savefig('graphs/'+output+".png", facecolor='white', transparent=False)
+    fig.savefig('graphs/'+output+".svg", facecolor='white', transparent=False)
 
 def plot_prices(filename):
     data = load_data(filename)
+    fig, ax = plt.subplots()
     for i in range(data["m"]):
         asset = data['assets'][i]
         price_series = asset.price_series
@@ -90,12 +93,13 @@ def plot_prices(filename):
     plt.title('Asset prices over time')
     plt.legend(labels = range(data["m"]))
     plt.show()
-    plt.savefig('graphs/'+filename+"_prices.png", facecolor='white', transparent=False)
+    fig.savefig('graphs/'+filename+"_prices.svg", facecolor='white', transparent=False)
 
 def plot_cashes(filename):
     data = load_data(filename)
     agents = data['agents']
     names = []
+    fig, ax = plt.subplots()
     for agent in agents:
         cashes = agent.cashes
         times = cashes[:,0]
@@ -107,9 +111,11 @@ def plot_cashes(filename):
     plt.title('Agents\' cash over time')
     plt.legend(labels=names)
     plt.show()
+    fig.savefig('graphs/'+filename+"_cashes.svg", facecolor='white', transparent=False)
 
 import matplotlib.lines as mlines
 def plot_orders(filename, assetno, agentno):
+    fig, ax = plt.subplots()
     data = load_data(filename)
     agent = data['agents'][agentno]
     orders = agent.orders
@@ -125,3 +131,4 @@ def plot_orders(filename, assetno, agentno):
     plt.xlabel('order index')
     plt.title(agent.name+'\'s orders for suit '+str(assetno))
     plt.show()
+    fig.savefig('graphs/'+filename+"_orders"+str(assetno)+'.'+agent.name+".svg", facecolor='white', transparent=False)
