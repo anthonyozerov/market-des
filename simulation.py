@@ -107,7 +107,7 @@ def initialize(bonus, distribution, goalsuit):
             rate_c = float(par["rate_c"]) if "rate_c" in par else uniform(0,1)
 
             if number>1:
-                name = base_name+"#"+str(j)
+                name = base_name+""+str(j)
             else:
                 name = base_name
             agent = agent_class(cash=cash, latency = latency, rate_c = rate_c,

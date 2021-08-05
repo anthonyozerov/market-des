@@ -4,6 +4,8 @@ import os
 import matplotlib.pyplot as plt
 import math
 
+import tikzplotlib
+
 class Trader:
     pass
 
@@ -33,8 +35,9 @@ def plot_expectations(filename):
                 names.append(agent.name + ", sell")
             elif(hasattr(agent, 'expectations')):
                 expectations = agent.expectations
-                plt.plot(expectations[:,0],expectations[:,i+1])
-                names.append(agent.name)
+                if(len(expectations)>0):
+                    plt.plot(expectations[:,0],expectations[:,i+1])
+                    names.append(agent.name)
         plt.ylabel('value')
         plt.xlabel('time')
         plt.legend(labels = names)
@@ -42,10 +45,10 @@ def plot_expectations(filename):
         if i == data['goalsuit']:
             titlestring += " (GOAL SUIT)"
         plt.title(titlestring)
-        plt.show()
         fig.savefig('graphs/'+filename+'.'+str(i)+"_expectations.svg", facecolor='white', transparent=False)
+        tikzplotlib.save('graphs/'+filename+'.'+str(i)+'_expectations.tex', axis_height = '\\figH', axis_width = '\\figW')
 
-def plot_rewards(input_base, iterations, output):
+def plot_rewards(input_base, iterations, output, ylab = True):
     endcash = np.zeros([iterations,4])
     endpayout = np.zeros([iterations,4])
     avg_trades = 0
@@ -70,14 +73,17 @@ def plot_rewards(input_base, iterations, output):
     ax.bar(range(0,4),payoutmeans,color = color,bottom=cashmeans, edgecolor = "black")
     ax.errorbar(range(0,4), payoutmeans+cashmeans, yerr=payoutstds*2/math.sqrt(iterations), fmt="none", color="black",capsize=5)
     ax.set_ylim((0,700))
-    ax.set_ylabel("Mean cash + payout at end")
-    ax.set_xlabel("Player")
+    if ylab:
+        ax.set_ylabel("Mean cash+payout")
+    ax.set_xlabel("Agent")
     ax.set_xticks(range(0,4))
     ax.set_xticklabels(names)
     plt.axhline(y=350, color='grey', linestyle='--')
     plt.axhline(y=400, color='black', linestyle='--')
-    plt.show()
+    #plt.title('Final cash+payout of agents in '+str(iterations)+' simulations')
     fig.savefig('graphs/'+output+".svg", facecolor='white', transparent=False)
+    fig.tight_layout()
+    tikzplotlib.save('graphs/'+output+'.tex', axis_height = '\\figH', axis_width = '\\figW')
 
 def plot_prices(filename):
     data = load_data(filename)
