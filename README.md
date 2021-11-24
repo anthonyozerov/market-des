@@ -1,4 +1,4 @@
 # market-des
 Agent-based discrete event simulation of a market
 
-To run, just use ./market-des
+To run a figgie game, use ./market-des -r figgie
